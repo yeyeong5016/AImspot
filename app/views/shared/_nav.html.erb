@@ -1,0 +1,33 @@
+<%
+  tabs = [
+    { href: root_path, label: "홈", match: "home" },
+    { href: report_path, label: "상권 분석", match: "report" }
+  ]
+  current = "#{controller_name}##{action_name}"
+%>
+<header class="sticky top-0 z-50 border-b border-border bg-card">
+  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <!-- 로고 -->
+    <%= link_to root_path, class: "flex items-center gap-2" do %>
+      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-[var(--color-primary-foreground)]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </span>
+      <span class="text-lg font-bold tracking-tight">AImspot</span>
+    <% end %>
+
+    <!-- 탭 -->
+    <nav class="flex items-center gap-1 rounded-full bg-[var(--color-zinc-bg)] p-1">
+      <% tabs.each do |tab| %>
+        <% active = action_name == tab[:match] %>
+        <%= link_to tab[:label], tab[:href],
+              class: "rounded-full px-4 py-1.5 text-sm font-medium transition-colors #{active ? 'bg-ink text-[var(--color-primary-foreground)]' : 'text-muted-foreground hover:text-foreground'}" %>
+      <% end %>
+    </nav>
+
+    <!-- 위치 + 아바타 -->
+    <div class="flex items-center gap-3">
+      <span class="hidden text-sm text-muted-foreground sm:inline">성신여대 돈암동</span>
+      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-xs font-bold text-[var(--color-primary-foreground)]" aria-hidden="true">성</span>
+    </div>
+  </div>
+</header>

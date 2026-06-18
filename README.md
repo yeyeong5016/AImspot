@@ -1,14 +1,24 @@
-# AImspot
-AI 기반 대학가 창업 상권 분석 서비스
+# README
 
-# todo
-https://aiplusinnovation.kr/
+This README would normally document whatever steps are necessary to get the
+application up and running.
 
+Things you may want to cover:
 
-## Environment
+* Ruby version
 
-- Python 3.10.11
+* System dependencies
 
-## Install
+* Configuration
 
-pip install -r requirements.txt
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...
