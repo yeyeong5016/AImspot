@@ -33,4 +33,4 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
-__pycache__/**/*
+__pycache__/
