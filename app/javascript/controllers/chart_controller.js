@@ -135,7 +135,7 @@ export default class extends Controller {
         },
         scales: {
           x: { grid: { display: false }, border: { display: false }, ticks: { color: AXIS, font: { size: 12 } } },
-          y: { display: false, min: 0, max: 30 },
+          y: { display: false, min: 0, grace: "18%" },
         },
       },
     }

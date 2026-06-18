@@ -1,10 +1,19 @@
 require_relative "boot"
 
-require "rails/all"
+# DB를 쓰지 않는 앱 — ActiveRecord/Storage/Mailer 등은 로드하지 않는다.
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
+require "action_controller/railtie"
+require "action_view/railtie"
+require "action_cable/engine"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+
+# .env 파일을 ENV 로 로드 (GEMINI_API_KEY 등). 파일이 없으면 조용히 무시.
+require "dotenv/load"
 
 module AImspot
   class Application < Rails::Application

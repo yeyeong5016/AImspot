@@ -1,16 +1,17 @@
 <%
-  # 점수 → 등급 변환
+  # 등급 → 색상/라벨 (등급 자체는 서비스가 전체 분포 백분위로 산정한 @grade 사용)
   grade =
-    if    @score >= 80 then { g: "A", color: "#3b82f6", bg: "#eff6ff", label: "창업 추천" }
-    elsif @score >= 60 then { g: "B", color: "#22c55e", bg: "#f0fdf4", label: "검토 가능" }
-    elsif @score >= 40 then { g: "C", color: "#f59e0b", bg: "#fefce8", label: "신중 검토" }
-    else                    { g: "D", color: "#ef4444", bg: "#fef2f2", label: "창업 비추천" }
+    case @grade
+    when "A" then { g: "A", color: "#3b82f6", bg: "#eff6ff", label: @judge }
+    when "B" then { g: "B", color: "#22c55e", bg: "#f0fdf4", label: @judge }
+    when "C" then { g: "C", color: "#f59e0b", bg: "#fefce8", label: @judge }
+    else          { g: "D", color: "#ef4444", bg: "#fef2f2", label: @judge }
     end
 
   stat_rows = [
-    { label: "동종 업종 수", value: "64곳", sub: "반경 300m 기준" },
-    { label: "유동인구", value: "24,800명", sub: "월 평균" },
-    { label: "폐업률", value: "18.4%", sub: "최근 1년" }
+    { label: "동종 점포 수", value: "#{@stats[:same_biz_stores]}곳", sub: "선택 지역" },
+    { label: "점포당 월매출", value: "#{@stats[:per_store_revenue]}백만원", sub: "월 평균" },
+    { label: "폐업률", value: "#{@stats[:closure_rate]}%", sub: "최근" }
   ]
 %>
 
@@ -35,7 +36,7 @@
         <span class="font-bold">AI 분석 결과</span>
       </div>
       <p class="mt-3 leading-relaxed text-foreground/90">
-        현재 카페 업종 경쟁이 높은 편입니다. 유동인구는 충분하지만 동종 업종 밀집도가 높아 일반적인 카페로는 차별화가 어렵습니다. 학생 수요가 높은 건강식 메뉴나 심야 운영 등 명확한 차별화 전략이 필요합니다.
+        <%= @ai_summary %>
       </p>
       <div class="mt-4 grid gap-3 sm:grid-cols-2">
         <% @ai_bullets.each do |b| %>
@@ -113,12 +114,15 @@
     <div class="rounded-2xl border border-border bg-card p-6">
       <div class="mb-4 flex items-center justify-between gap-3">
         <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">시장성</span>
-        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:#f0fdf4;color:#16a34a">중상위</span>
+        <% mb = @stats[:market_badge] %>
+        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:<%= mb[:bg] %>;color:<%= mb[:color] %>"><%= mb[:text] %></span>
       </div>
       <div class="h-[360px]"><canvas data-controller="chart" data-chart-type-value="revenue" data-chart-data-value="<%= @revenue.to_json %>"></canvas></div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">점포당 월매출 39백만원</span>
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">전체 업종 중 5위</span>
+        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">점포당 월매출 <%= @stats[:per_store_revenue] %>백만원</span>
+        <% if @stats[:revenue_rank] %>
+          <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">전체 <%= @stats[:revenue_total] %>개 업종 중 <%= @stats[:revenue_rank] %>위</span>
+        <% end %>
       </div>
     </div>
 
@@ -126,14 +130,19 @@
     <div class="rounded-2xl border border-border bg-card p-6">
       <div class="mb-4 flex items-center justify-between gap-3">
         <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">경쟁도</span>
-        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:#fef2f2;color:#ef4444">경쟁 과열</span>
+        <% cb = @stats[:competition_badge] %>
+        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:<%= cb[:bg] %>;color:<%= cb[:color] %>"><%= cb[:text] %></span>
       </div>
-      <p class="mb-2 text-center text-sm font-semibold">F&amp;B 중앙값의 약 4.6배 · 경쟁 과열</p>
+      <% if @stats[:comp_ratio] %>
+        <p class="mb-2 text-center text-sm font-semibold"><%= @area[:label] %> 동일 대분류 중앙값의 약 <%= @stats[:comp_ratio] %>배 · <%= cb[:text] %></p>
+      <% end %>
       <div class="h-[280px]"><canvas data-controller="chart" data-chart-type-value="competition" data-chart-data-value="<%= @competition.to_json %>"></canvas></div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">동종 점포 64개</span>
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">중앙값의 4.6배</span>
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">프랜차이즈 38%</span>
+        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">동종 점포 <%= @stats[:comp_count] %>개</span>
+        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">대분류 중앙값 <%= @stats[:comp_median] %>개</span>
+        <% if @stats[:comp_ratio] %>
+          <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">중앙값의 <%= @stats[:comp_ratio] %>배</span>
+        <% end %>
       </div>
     </div>
 
@@ -141,12 +150,14 @@
     <div class="rounded-2xl border border-border bg-card p-6">
       <div class="mb-4 flex items-center justify-between gap-3">
         <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">학생 적합도</span>
-        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:#f0fdf4;color:#16a34a">학생 친화</span>
+        <% ab = @stats[:age_badge] %>
+        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background:<%= ab[:bg] %>;color:<%= ab[:color] %>"><%= ab[:text] %></span>
       </div>
       <div class="h-[280px]"><canvas data-controller="chart" data-chart-type-value="age" data-chart-data-value="<%= @age.to_json %>" data-chart-avg-value="<%= @age_average %>"></canvas></div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">20대 매출 비중 25% (평균 +6%p)</span>
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">여성 매출 비중 68%</span>
+        <% diff = @stats[:age_20s_diff]; diff_str = diff >= 0 ? "+#{diff}" : diff.to_s %>
+        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">20대 매출 비중 <%= @stats[:age_20s] %>% (지역 평균 <%= diff_str %>%p)</span>
+        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">지역 20대 평균 <%= @age_average %>%</span>
       </div>
     </div>
 
@@ -161,8 +172,12 @@
       </div>
       <div class="h-[300px]"><canvas data-controller="chart" data-chart-type-value="timeslot" data-chart-data-value="<%= @timeslot.to_json %>"></canvas></div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">매출 피크 11~14시</span>
-        <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">학생 활동 피크 17~21시</span>
+        <% if @stats[:sales_peak] %>
+          <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">매출 피크 <%= @stats[:sales_peak] %>시</span>
+        <% end %>
+        <% if @stats[:student_peak] %>
+          <span class="inline-flex items-center rounded-full bg-[var(--color-zinc-bg)] px-3 py-1.5 text-xs font-medium text-foreground">학생 활동 피크 <%= @stats[:student_peak] %>시</span>
+        <% end %>
       </div>
     </div>
 
