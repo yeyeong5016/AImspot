@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" class="bg-background">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AImspot · AI 상권 분석 플랫폼</title>
+    <meta name="description" content="성신여대 상권 데이터와 학생 수요조사 500건을 분석하여 창업 의사결정을 지원하는 AI 상권 분석 서비스">
+    <meta name="theme-color" content="#f4f4f5">
+    <%= csrf_meta_tags %>
+
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind (Play CDN) + 커스텀 토큰 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              background: "#f4f4f5",
+              foreground: "#18181b",
+              card: "#ffffff",
+              border: "#e4e4e7",
+              brand: "#3b82f6",
+              "brand-soft": "#eff6ff",
+              ink: "#18181b",
+              "zinc-bg": "#f4f4f5",
+              "muted-foreground": "#71717a",
+              "primary-foreground": "#ffffff",
+            },
+            fontFamily: {
+              sans: ['"Noto Sans KR"', "sans-serif"],
+            },
+            borderRadius: { "2xl": "1.35rem" },
+          },
+        },
+      }
+    </script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Chart.js + 데이터라벨 플러그인 -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+    <!-- Stimulus + 컨트롤러 (importmap) -->
+    <script type="importmap">
+    {
+      "imports": {
+        "@hotwired/stimulus": "https://ga.jspm.io/npm:@hotwired/stimulus@3.2.2/dist/stimulus.js",
+        "controllers/strategy_controller": "<%= asset_path('controllers/strategy_controller.js') %>",
+        "controllers/chart_controller": "<%= asset_path('controllers/chart_controller.js') %>",
+        "controllers/map_controller": "<%= asset_path('controllers/map_controller.js') %>",
+        "controllers/form_controller": "<%= asset_path('controllers/form_controller.js') %>"
+      }
+    }
+    </script>
+    <script type="module">
+      import { Application } from "@hotwired/stimulus"
+      import StrategyController from "controllers/strategy_controller"
+      import ChartController from "controllers/chart_controller"
+      import MapController from "controllers/map_controller"
+      import FormController from "controllers/form_controller"
+
+      const application = Application.start()
+      application.register("strategy", StrategyController)
+      application.register("chart", ChartController)
+      application.register("map", MapController)
+      application.register("form", FormController)
+    </script>
+  </head>
+
+  <body class="font-sans antialiased bg-background text-foreground">
+    <%= render "shared/nav" %>
+    <%= yield %>
+  </body>
+</html>
