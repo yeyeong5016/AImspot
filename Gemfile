@@ -16,7 +16,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 # Read .xlsx survey data (창업 점수 엔진) [https://github.com/roo-rb/roo]
-gem "roo", "~> 2.10"
+gem "roo", "~> 3.0"
 
 # Load .env (GEMINI_API_KEY 등) into ENV [https://github.com/bkeepers/dotenv]
 gem "dotenv"
